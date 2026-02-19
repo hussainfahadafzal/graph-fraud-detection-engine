@@ -1,0 +1,23 @@
+body {
+    margin: 0;
+    padding: 40px;
+    background-color: #0B1E2D;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #00C2FF;
+    border: none;
+    cursor: pointer;
+}
+
+h1, h2 {
+    color: #00C2FF;
+}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Graph-Based Money Muling Detection Engine</h1>
+
+<form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".csv" required>
+    <button type="submit">Analyze</button>
+</form>
+
+<p>CSV format required:</p>
+<p>sender,receiver,amount</p>
+
+{% endblock %}

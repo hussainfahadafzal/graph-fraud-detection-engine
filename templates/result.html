@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Analysis Results</h2>
+
+<p>Total Accounts: {{ data.total_nodes }}</p>
+<p>Total Transactions: {{ data.total_edges }}</p>
+
+<h3>Suspicious Accounts</h3>
+<ul>
+{% for acc in data.suspicious_accounts %}
+    <li>{{ acc }} (Score: {{ data.suspicion_scores[acc] }})</li>
+{% endfor %}
+</ul>
+
+<h3>Fraud Rings</h3>
+<ul>
+{% for ring in data.fraud_rings %}
+    <li>{{ ring }}</li>
+{% endfor %}
+</ul>
+
+<a href="/">Analyze Another File</a>
+
+{% endblock %}

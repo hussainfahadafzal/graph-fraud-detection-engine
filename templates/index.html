@@ -1,28 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<div class="dashboard">
+<div class="dashboard dark-ui">
     <section class="panel panel-upload">
-        <div class="panel-header">
-            <h2>RIFT 2026 • Money Muling Detection Engine</h2>
-            <p>Graph-theoretic financial forensics on live transaction CSVs.</p>
-        </div>
+        <div class="section-title">Transaction Data Upload</div>
         <form id="upload-form">
             <div class="upload-row">
                 <label class="upload-dropzone">
                     <input type="file" id="file-input" name="file" accept=".csv" />
-                    <span class="upload-title">Drop CSV here or click to browse</span>
-                    <span class="upload-subtitle">
-                        Required columns:
-                        <code>transaction_id, sender_id, receiver_id, amount, timestamp</code>
-                        (YYYY‑MM‑DD HH:MM:SS)
-                    </span>
+                    <span class="upload-title">Drop your CSV file here</span>
+                    <span class="upload-subtitle">Or click to browse (max 10MB)</span>
+                    <span class="upload-meta">Required: sender_id, receiver_id, amount, timestamp</span>
                 </label>
-                <button type="submit" class="btn-primary" id="analyze-btn">Run Detection</button>
-                <button type="button" class="btn-secondary" id="download-json-btn" disabled>
-                    Download JSON (Hackathon Spec)
-                </button>
+                <div class="upload-actions">
+                    <button type="submit" class="btn-primary" id="analyze-btn">Run Analysis</button>
+                    <button type="button" class="btn-secondary" id="download-json-btn" disabled>Download Investigation Report (JSON)</button>
+                </div>
             </div>
             <div id="upload-error" class="alert alert-error" hidden></div>
         </form>
@@ -30,129 +23,124 @@
 
     <section class="panel panel-metrics">
         <div class="metrics-grid">
-            <div class="metric-card" id="metric-total-transactions">
-                <div class="metric-label">Total Transactions</div>
-                <div class="metric-value" data-default="0">0</div>
-            </div>
             <div class="metric-card" id="metric-total-accounts">
-                <div class="metric-label">Total Accounts</div>
-                <div class="metric-value" data-default="0">0</div>
+                <div class="metric-label">Total Accounts Analyzed</div>
+                <div class="metric-value">0</div>
             </div>
             <div class="metric-card metric-alert" id="metric-suspicious-accounts">
-                <div class="metric-label">Suspicious Accounts</div>
-                <div class="metric-value" data-default="0">0</div>
+                <div class="metric-label">Suspicious Accounts Flagged</div>
+                <div class="metric-value">0</div>
             </div>
-            <div class="metric-card metric-alert" id="metric-fraud-rings">
+            <div class="metric-card metric-warn" id="metric-fraud-rings">
                 <div class="metric-label">Fraud Rings Detected</div>
-                <div class="metric-value" data-default="0">0</div>
+                <div class="metric-value">0</div>
             </div>
-            <div class="metric-card" id="metric-highest-risk">
-                <div class="metric-label">Highest Ring Risk</div>
-                <div class="metric-value" data-default="0">0</div>
+            <div class="metric-card metric-ok" id="metric-processing-time">
+                <div class="metric-label">Processing Time</div>
+                <div class="metric-value">0s</div>
             </div>
         </div>
     </section>
 
     <section class="panel panel-main">
-        <div class="main-layout">
-            <div class="graph-wrapper">
-                <div class="panel-header compact">
-                    <h3>Transaction Network Graph</h3>
-                    <p>Directed edges show money flow; nodes glow red as suspicion rises.</p>
-                </div>
-                <div id="graph-container"></div>
-                <div id="graph-tooltip" class="graph-tooltip" hidden></div>
-            </div>
-            <aside class="side-panel" id="account-details">
-                <div class="panel-header compact">
-                    <h3>Account Insights</h3>
-                    <p>Click a node in the graph for detailed context.</p>
-                </div>
-                <div class="account-details-body">
-                    <p class="placeholder">No account selected yet.</p>
-                    <dl class="details-list" hidden>
-                        <div>
-                            <dt>Account ID</dt>
-                            <dd id="detail-account-id"></dd>
-                        </div>
-                        <div>
-                            <dt>Suspicion Score</dt>
-                            <dd>
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="detail-score-fill"></div>
-                                </div>
-                                <span id="detail-score-text"></span>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt>Detected Patterns</dt>
-                            <dd id="detail-patterns"></dd>
-                        </div>
-                        <div>
-                            <dt>Fraud Ring</dt>
-                            <dd id="detail-ring"></dd>
-                        </div>
-                        <div>
-                            <dt>Graph Degree (in / out)</dt>
-                            <dd id="detail-degree"></dd>
-                        </div>
-                        <div>
-                            <dt>Flow (in / out)</dt>
-                            <dd id="detail-flow"></dd>
-                        </div>
-                    </dl>
-                </div>
-            </aside>
+        <div class="section-title">Transaction Graph</div>
+        <div class="graph-stats" id="graph-stats">
+            <div><span id="stat-nodes">0</span><small>Total Nodes</small></div>
+            <div><span id="stat-edges">0</span><small>Total Edges</small></div>
+            <div><span id="stat-degree">0</span><small>Avg Degree</small></div>
+            <div><span id="stat-component">0</span><small>Largest Component</small></div>
         </div>
+        <div class="graph-legend">
+            <span class="legend-item"><i class="legend-dot dot-green"></i>0-39</span>
+            <span class="legend-item"><i class="legend-dot dot-purple"></i>40-69</span>
+            <span class="legend-item"><i class="legend-dot dot-orange"></i>70-89</span>
+            <span class="legend-item"><i class="legend-dot dot-red"></i>90+</span>
+        </div>
+        <div id="graph-container"></div>
+        <div id="graph-tooltip" class="graph-tooltip" hidden></div>
     </section>
 
-    <section class="panel panel-lists">
-        <div class="lists-layout">
-            <div class="list-block">
-                <div class="panel-header compact">
-                    <h3>Fraud Rings</h3>
-                    <p>Strongly‑connected components ranked by ring‑level risk.</p>
-                </div>
+    <section class="panel panel-lower">
+        <div class="lower-grid">
+            <div class="card-block">
+                <div class="section-title">Suspicion Score Distribution</div>
+                <div class="score-bars" id="score-distribution"></div>
+            </div>
+            <div class="card-block">
+                <div class="section-title">Fraud Ring Summary</div>
                 <div class="table-wrapper">
                     <table class="data-table" id="fraud-rings-table">
                         <thead>
                             <tr>
                                 <th>Ring ID</th>
-                                <th>Member Count</th>
-                                <th>Risk Score</th>
                                 <th>Pattern Type</th>
                                 <th>Members</th>
+                                <th>Risk Score</th>
+                                <th>Member Accounts</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="placeholder-row">
-                                <td colspan="5">No fraud rings detected yet.</td>
-                            </tr>
+                            <tr class="placeholder-row"><td colspan="5">No fraud rings detected.</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <div class="list-block">
-                <div class="panel-header compact">
-                    <h3>Suspicious Accounts</h3>
-                    <div class="list-toolbar">
-                        <input
-                            id="account-search"
-                            type="search"
-                            placeholder="Search account ID or pattern tag..."
-                        />
-                    </div>
-                    <p>Sorted by suspicion score with pattern‑level tags.</p>
+    <section class="panel panel-transactions">
+        <div class="section-title">Recent Transactions</div>
+        <div class="table-toolbar">
+            <input id="tx-search" type="search" placeholder="Search sender / receiver / transaction ID..." />
+            <span id="tx-count">Showing 0 transactions</span>
+        </div>
+        <div class="table-wrapper">
+            <table class="data-table" id="recent-transactions-table">
+                <thead>
+                    <tr>
+                        <th>Transaction(s)</th>
+                        <th>Sender</th>
+                        <th>Receiver</th>
+                        <th>Count</th>
+                        <th>Amount</th>
+                        <th>Last Seen</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-transactions-body">
+                    <tr class="placeholder-row"><td colspan="6">No transactions to display.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel panel-suspicious" id="account-details">
+        <div class="section-title">Suspicious Accounts</div>
+        <div class="table-toolbar">
+            <input id="account-search" type="search" placeholder="Search by account ID or pattern..." />
+            <span id="sus-count">0 flagged</span>
+        </div>
+        <div class="account-details-body">
+            <p class="placeholder">No account selected yet.</p>
+            <dl class="details-list" hidden>
+                <div><dt>Account ID</dt><dd id="detail-account-id"></dd></div>
+                <div>
+                    <dt>Suspicion Score</dt>
+                    <dd>
+                        <div class="progress-bar"><div class="progress-fill" id="detail-score-fill"></div></div>
+                        <span id="detail-score-text"></span>
+                    </dd>
                 </div>
-                <div class="accounts-list" id="suspicious-accounts-list">
-                    <p class="placeholder">Upload data to see ranked suspicious accounts.</p>
-                </div>
-            </div>
+                <div><dt>Detected Patterns</dt><dd id="detail-patterns"></dd></div>
+                <div><dt>Fraud Ring</dt><dd id="detail-ring"></dd></div>
+                <div><dt>Graph Degree (in / out)</dt><dd id="detail-degree"></dd></div>
+                <div><dt>Flow (in / out)</dt><dd id="detail-flow"></dd></div>
+            </dl>
+        </div>
+        <div class="accounts-list" id="suspicious-accounts-list">
+            <p class="placeholder">Upload data to see suspicious accounts.</p>
         </div>
     </section>
 </div>
 
 <script src="{{ url_for('static', filename='graph.js') }}"></script>
-
 {% endblock %}

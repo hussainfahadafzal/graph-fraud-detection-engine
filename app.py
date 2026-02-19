@@ -60,11 +60,11 @@ def analyze():
         )
 
     try:
-        # Read directly from the in‑memory file object to avoid path dependencies
+        # Read directly from the in-memory file object to avoid path dependencies
         df = pd.read_csv(file)
     except Exception as exc:  # pragma: no cover - defensive
         return _error_response(
-            "Unable to read CSV file. Please verify the file is a valid, comma‑separated CSV.",
+            "Unable to read CSV file. Please verify the file is a valid, comma-separated CSV.",
             400,
             {"code": "PARSE_ERROR", "details": str(exc)},
         )
@@ -87,7 +87,7 @@ def analyze():
     df = df[REQUIRED_COLUMNS]
 
     try:
-        result = analyze_transactions(df)
+        result = analyze_transactions(df, max_runtime_seconds=30.0)
     except ValueError as ve:
         # Validation-style errors from the analysis layer
         return _error_response(

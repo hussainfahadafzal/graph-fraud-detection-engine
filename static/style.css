@@ -1,23 +1,73 @@
 body {
     margin: 0;
-    padding: 40px;
-    background-color: #0B1E2D;
-    color: white;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
+    background: #0f172a;
+    color: #f1f5f9;
+}
+
+header {
+    background: #0b1220;
+    padding: 25px;
+    text-align: center;
+    border-bottom: 2px solid #1e293b;
+}
+
+h1 {
+    margin: 0;
+    font-size: 28px;
+    color: #38bdf8;
+}
+
+p {
+    color: #94a3b8;
 }
 
 .container {
-    max-width: 900px;
-    margin: auto;
+    padding: 30px;
 }
 
-button {
-    padding: 10px 20px;
-    background-color: #00C2FF;
-    border: none;
-    cursor: pointer;
+#graph-container {
+    height: 600px;
+    background: #111827;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border: 1px solid #1f2937;
 }
 
-h1, h2 {
-    color: #00C2FF;
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
 }
+
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.card h2 {
+    margin: 0;
+    color: #38bdf8;
+}
+
+.card span {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #334155;
+}
+
+th {
+    background: #1e293b;

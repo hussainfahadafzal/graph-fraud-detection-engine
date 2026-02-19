@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Graph Fraud Detection</title>
+    <title>Graph-Based Money Muling Detection Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        {% block content %}{% endblock %}
-    </div>
+
+<header>
+    <h1>Graph-Based Money Muling Detection Engine</h1>
+    <p>Financial Forensics Powered by Graph Theory</p>
+</header>
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
 </body>
 </html>

@@ -1,9 +1,4 @@
-# Virtual Environment
 venv/
-
-# Upload folder
-uploads/
-
-# Python cache
 __pycache__/
-*.pyc
+uploads/
+.env

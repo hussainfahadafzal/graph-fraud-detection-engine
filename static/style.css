@@ -207,6 +207,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     gap: 10px;
 }
 
+.panel-transactions,
+.panel-suspicious,
+.panel-main,
+.panel-lower,
+.panel-upload,
+.panel-metrics {
+    min-width: 0;
+}
+
 .card-block {
     border: 1px solid #17355d;
     border-radius: 8px;
@@ -301,7 +310,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     cursor: pointer;
 }
 .account-card:hover { border-color: #2f6cb0; }
-.account-card-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+.account-card-header { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; margin-bottom: 6px; }
 .account-score { font-weight: 700; }
 
 .progress-bar {
@@ -329,14 +338,254 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .mono { font-family: Consolas, "Courier New", monospace; }
 
 @media (max-width: 1100px) {
+    .container {
+        padding: 12px;
+    }
+
+    .metric-value {
+        font-size: 26px;
+    }
+
     .metrics-grid { grid-template-columns: repeat(2, 1fr); }
     .lower-grid { grid-template-columns: 1fr; }
+
+    #graph-container {
+        height: 420px;
+    }
 }
 
 @media (max-width: 860px) {
-    .upload-row,
+    .topbar-inner {
+        padding: 10px 12px;
+    }
+
+    .topbar h1 {
+        font-size: 14px;
+    }
+
+    .topbar p {
+        font-size: 10px;
+    }
+
+    .upload-row {
+        grid-template-columns: 1fr;
+    }
+
+    .upload-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .upload-actions button {
+        width: 100%;
+    }
+
     .metrics-grid,
-    .graph-stats { grid-template-columns: 1fr; }
-    #graph-container { height: 360px; }
-    .upload-actions { grid-template-columns: 1fr; }
+    .graph-stats {
+        grid-template-columns: 1fr;
+    }
+
+    #graph-container {
+        height: 340px;
+    }
+
+    .table-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .table-toolbar input {
+        width: 100%;
+    }
+
+    .table-toolbar span {
+        text-align: right;
+    }
+
+    .data-table {
+        min-width: 720px;
+    }
+
+    .accounts-list {
+        max-height: 240px;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 8px;
+    }
+
+    .panel {
+        padding: 10px;
+    }
+
+    .section-title {
+        font-size: 10px;
+    }
+
+    .metric-label {
+        font-size: 9px;
+    }
+
+    .metric-value {
+        font-size: 22px;
+    }
+
+    .upload-dropzone {
+        min-height: 76px;
+        padding: 12px;
+    }
+
+    .upload-title {
+        font-size: 12px;
+    }
+
+    .upload-subtitle,
+    .upload-meta {
+        font-size: 10px;
+    }
+
+    .graph-legend {
+        gap: 8px;
+        font-size: 10px;
+    }
+
+    #graph-container {
+        height: 300px;
+    }
+
+    .score-row {
+        grid-template-columns: 56px 1fr 34px;
+        font-size: 10px;
+    }
+
+    .account-card-header {
+        font-size: 11px;
+    }
+
+    .tag {
+        font-size: 9px;
+        padding: 1px 5px;
+    }
+}
+
+@media (max-width: 420px) {
+    .metric-value {
+        font-size: 20px;
+    }
+
+    #graph-container {
+        height: 260px;
+    }
+
+    .graph-tooltip {
+        min-width: 150px;
+        max-width: 200px;
+        font-size: 10px;
+        padding: 6px;
+    }
+
+    .data-table {
+        min-width: 640px;
+        font-size: 10px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 6px;
+    }
+}
+
+/* ---- Mobile-first hard overrides for reliability ---- */
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.container,
+.dashboard,
+.panel,
+.panel-main,
+.panel-lower,
+.panel-transactions,
+.panel-suspicious,
+.card-block,
+.table-wrapper {
+    min-width: 0;
+}
+
+.metrics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.graph-stats {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.lower-grid {
+    grid-template-columns: 1fr;
+}
+
+.upload-row {
+    grid-template-columns: 1fr;
+}
+
+.upload-actions {
+    grid-template-columns: 1fr;
+}
+
+.upload-actions button {
+    width: 100%;
+}
+
+.table-toolbar {
+    flex-wrap: wrap;
+}
+
+.table-toolbar input {
+    width: 100%;
+}
+
+.data-table {
+    width: 100%;
+}
+
+#graph-container {
+    width: 100%;
+}
+
+@media (min-width: 960px) {
+    .upload-row {
+        grid-template-columns: 1fr auto;
+    }
+
+    .upload-actions {
+        width: 280px;
+    }
+
+    .upload-actions button {
+        width: 100%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .lower-grid {
+        grid-template-columns: 1fr 1.6fr;
+    }
+}
+
+/* Dense table simplification for phones */
+@media (max-width: 680px) {
+    #recent-transactions-table th:nth-child(1),
+    #recent-transactions-table td:nth-child(1),
+    #recent-transactions-table th:nth-child(6),
+    #recent-transactions-table td:nth-child(6) {
+        display: none;
+    }
+
+    #fraud-rings-table th:nth-child(5),
+    #fraud-rings-table td:nth-child(5) {
+        display: none;
+    }
 }

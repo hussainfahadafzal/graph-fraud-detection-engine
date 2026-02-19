@@ -446,6 +446,11 @@ function updateAccountDetails(account) {
 }
 
 function buildDownloadPayload() {
+    const toFixedNumber = (value, digits = 1) => {
+        const n = Number(value || 0);
+        return Number(n.toFixed(digits));
+    };
+
     if (!latestAnalysis) {
         return {
             suspicious_accounts: [],
@@ -459,26 +464,95 @@ function buildDownloadPayload() {
         };
     }
 
-    return {
-        suspicious_accounts: (latestAnalysis.suspicious_accounts || []).map((a) => ({
-            account_id: a.account_id,
-            suspicion_score: a.suspicion_score,
+    const suspicious_accounts = (latestAnalysis.suspicious_accounts || [])
+        .slice()
+        .sort((a, b) => Number(b.suspicion_score || 0) - Number(a.suspicion_score || 0))
+        .map((a) => ({
+            account_id: a.account_id || "",
+            suspicion_score: toFixedNumber(a.suspicion_score, 1),
             detected_patterns: a.patterns || [],
             ring_id: a.ring_id || "",
-        })),
-        fraud_rings: (latestAnalysis.fraud_rings || []).map((r) => ({
-            ring_id: r.ring_id,
-            member_accounts: r.member_accounts || [],
-            pattern_type: r.pattern_type || "cycle",
-            risk_score: r.risk_score,
-        })),
+        }));
+
+    const fraud_rings = (latestAnalysis.fraud_rings || []).map((r) => ({
+        ring_id: r.ring_id || "",
+        member_accounts: r.member_accounts || [],
+        pattern_type: r.pattern_type || "cycle",
+        risk_score: toFixedNumber(r.risk_score, 1),
+    }));
+
+    const summary = {
+        total_accounts_analyzed: Number(latestAnalysis.summary_stats?.total_accounts || 0),
+        suspicious_accounts_flagged: Number(latestAnalysis.summary_stats?.suspicious_accounts || 0),
+        fraud_rings_detected: Number(latestAnalysis.summary_stats?.fraud_rings || 0),
+        processing_time_seconds: toFixedNumber(latestAnalysis.summary_stats?.processing_time_seconds, 1),
+    };
+
+    return { suspicious_accounts, fraud_rings, summary };
+}
+
+function sanitizeDownloadPayload(payload) {
+    const src = payload || {};
+    const suspicious = Array.isArray(src.suspicious_accounts) ? src.suspicious_accounts : [];
+    const rings = Array.isArray(src.fraud_rings) ? src.fraud_rings : [];
+    const summary = src.summary || {};
+
+    const suspicious_accounts = suspicious.map((x) => ({
+        account_id: String(x.account_id || ""),
+        suspicion_score: Number(x.suspicion_score || 0),
+        detected_patterns: Array.isArray(x.detected_patterns) ? x.detected_patterns.map((p) => String(p)) : [],
+        ring_id: String(x.ring_id || ""),
+    }));
+
+    const fraud_rings = rings.map((x) => ({
+        ring_id: String(x.ring_id || ""),
+        member_accounts: Array.isArray(x.member_accounts) ? x.member_accounts.map((m) => String(m)) : [],
+        pattern_type: String(x.pattern_type || "cycle"),
+        risk_score: Number(x.risk_score || 0),
+    }));
+
+    return {
+        suspicious_accounts,
+        fraud_rings,
         summary: {
-            total_accounts_analyzed: latestAnalysis.summary_stats?.total_accounts || 0,
-            suspicious_accounts_flagged: latestAnalysis.summary_stats?.suspicious_accounts || 0,
-            fraud_rings_detected: latestAnalysis.summary_stats?.fraud_rings || 0,
-            processing_time_seconds: latestAnalysis.summary_stats?.processing_time_seconds || 0,
+            total_accounts_analyzed: Number(summary.total_accounts_analyzed || 0),
+            suspicious_accounts_flagged: Number(summary.suspicious_accounts_flagged || suspicious_accounts.length),
+            fraud_rings_detected: Number(summary.fraud_rings_detected || fraud_rings.length),
+            processing_time_seconds: Number(summary.processing_time_seconds || 0),
         },
     };
+}
+
+function validateDownloadPayload(payload) {
+    if (!payload || typeof payload !== "object") return false;
+    if (!Array.isArray(payload.suspicious_accounts)) return false;
+    if (!Array.isArray(payload.fraud_rings)) return false;
+    if (!payload.summary || typeof payload.summary !== "object") return false;
+
+    const summary = payload.summary;
+    const requiredSummaryKeys = [
+        "total_accounts_analyzed",
+        "suspicious_accounts_flagged",
+        "fraud_rings_detected",
+        "processing_time_seconds",
+    ];
+    for (const key of requiredSummaryKeys) {
+        if (!(key in summary)) return false;
+    }
+
+    for (const row of payload.suspicious_accounts) {
+        if (!("account_id" in row && "suspicion_score" in row && "detected_patterns" in row && "ring_id" in row)) {
+            return false;
+        }
+    }
+
+    for (const row of payload.fraud_rings) {
+        if (!("ring_id" in row && "member_accounts" in row && "pattern_type" in row && "risk_score" in row)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 function attachDownloadHandler() {
@@ -487,7 +561,11 @@ function attachDownloadHandler() {
 
     btn.addEventListener("click", () => {
         if (!latestAnalysis) return;
-        const payload = buildDownloadPayload();
+        const payload = sanitizeDownloadPayload(buildDownloadPayload());
+        if (!validateDownloadPayload(payload)) {
+            alert("Download blocked: JSON schema validation failed.");
+            return;
+        }
         const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");

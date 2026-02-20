@@ -197,7 +197,6 @@ Final Score:
 - GitHub (Version Control)
 ## 🎯 Suspicion Scoring Logic
 
-```python
 score = min(100, weighted_sum + activity_boost)
 🚨 Suspicion Threshold
 
@@ -218,7 +217,10 @@ High precision
 Controlled false positives
 
 Explainable scoring
+
+
 ## Installation & Setup
+
 1️⃣ Clone Repository
 git clone https://github.com/yourusername/graph-fraud-detection-engine.git
 cd graph-fraud-detection-engine

@@ -244,3 +244,20 @@ python app.py
 
 Open in browser:
 http://127.0.0.1:5000
+
+# ⚠ Known Limitations
+
+- Rule-based detection (no ML classifier yet)
+- Very dense graphs (>20K transactions) may increase memory usage
+- Legitimate high-volume merchants may trigger hub detection
+- Temporal window is static during runtime
+- Does not currently support streaming data
+
+
+# 👥 Team Leader
+. Fahad Afzal Hussain
+
+# 👥 Team Members
+. Aryan Gambheer
+. Saurabh Yadav
+. Aditya Ranjan
